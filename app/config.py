@@ -1,3 +1,4 @@
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -6,6 +7,15 @@ class Settings(BaseSettings):
 
     # Database
     DATABASE_URL: str = "postgresql+asyncpg://urluser:urlpass@localhost:5432/urlshortener"
+
+    @field_validator("DATABASE_URL", mode="before")
+    @classmethod
+    def normalise_database_url(cls, v: str) -> str:
+        # DO (and many providers) emit postgres:// or postgresql:// — rewrite to asyncpg driver
+        for prefix in ("postgres://", "postgresql://"):
+            if v.startswith(prefix):
+                return v.replace(prefix, "postgresql+asyncpg://", 1)
+        return v
 
     # Redis
     REDIS_URL: str = "redis://localhost:6379/0"
