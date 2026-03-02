@@ -1,0 +1,70 @@
+name: url-shortener
+
+services:
+  - name: api
+    github:
+      repo: AdamRa97/DO_URL_SHORTERNER_API
+      branch: main
+      deploy_on_push: true
+    dockerfile_path: docker/Dockerfile
+    http_port: 8000
+    instance_count: 1
+    instance_size_slug: basic-xxs
+    routes:
+      - path: /
+    envs:
+      - key: SECRET_KEY
+        value: "9babd15990ab0587a5118d12cad1d13f4008ea86ccc5bdcafb5f16e7fec721cc"
+        type: SECRET
+      - key: ALGORITHM
+        value: "HS256"
+      - key: ACCESS_TOKEN_EXPIRE_MINUTES
+        value: "15"
+      - key: REFRESH_TOKEN_EXPIRE_DAYS
+        value: "7"
+      - key: SHORT_CODE_LENGTH
+        value: "7"
+      - key: ALIAS_MAX_LENGTH
+        value: "50"
+      - key: RATE_LIMIT_LINKS_CREATE
+        value: "20/minute"
+      - key: RATE_LIMIT_REDIRECT
+        value: "200/minute"
+      - key: ENVIRONMENT
+        value: "production"
+      - key: LOG_LEVEL
+        value: "INFO"
+      - key: DATABASE_URL
+        value: "${db.DATABASE_URL}"
+      - key: REDIS_URL
+        value: "${cache.REDIS_URL}"
+
+workers:
+  - name: celery-worker
+    github:
+      repo: AdamRa97/DO_URL_SHORTERNER_API
+      branch: main
+      deploy_on_push: true
+    dockerfile_path: docker/Dockerfile
+    run_command: celery -A app.tasks.celery_app worker --loglevel=info
+    instance_count: 1
+    instance_size_slug: basic-xxs
+    envs:
+      - key: SECRET_KEY
+        value: "${api.SECRET_KEY}"
+      - key: DATABASE_URL
+        value: "${db.DATABASE_URL}"
+      - key: REDIS_URL
+        value: "${cache.REDIS_URL}"
+      - key: ENVIRONMENT
+        value: "production"
+      - key: LOG_LEVEL
+        value: "INFO"
+
+databases:
+  - name: db
+    engine: PG
+    production: true
+  - name: cache
+    engine: VALKEY
+    production: true
