@@ -1,5 +1,4 @@
 import asyncio
-import os
 from logging.config import fileConfig
 
 from sqlalchemy import pool
@@ -9,6 +8,7 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 from alembic import context
 
 # Import Base so Alembic can detect models for autogenerate
+from app.config import settings
 from app.database import Base  # noqa: F401
 import app.models  # noqa: F401 — ensures all models are registered on Base.metadata
 
@@ -21,10 +21,7 @@ target_metadata = Base.metadata
 
 
 def get_url() -> str:
-    url = os.environ.get("DATABASE_URL", "")
-    if not url:
-        raise RuntimeError("DATABASE_URL environment variable is not set")
-    return url
+    return settings.DATABASE_URL
 
 
 def run_migrations_offline() -> None:
