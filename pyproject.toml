@@ -1,6 +1,6 @@
 [build-system]
 requires = ["setuptools>=68", "wheel"]
-build-backend = "setuptools.backends.legacy:build"
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "url-shortener"
@@ -13,11 +13,13 @@ dependencies = [
     "asyncpg>=0.29",
     "psycopg2-binary>=2.9",
     "alembic>=1.13",
+    "pydantic[email]>=2.0",
     "pydantic-settings>=2.3",
     "redis[hiredis]>=5.0",
     "celery[redis]>=5.4",
     "python-jose[cryptography]>=3.3",
     "passlib[bcrypt]>=1.7",
+    "bcrypt>=3.0,<4.0",
     "slowapi>=0.1.9",
     "python-multipart>=0.0.9",
     "python-json-logger>=2.0",
@@ -32,6 +34,7 @@ dev = [
     "ruff>=0.4",
     "mypy>=1.10",
     "anyio>=4",
+    "fakeredis>=2.23",
 ]
 
 [tool.setuptools.packages.find]
@@ -41,6 +44,9 @@ include = ["app*"]
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = ["tests"]
+filterwarnings = [
+    "ignore::DeprecationWarning:passlib",
+]
 
 [tool.ruff]
 line-length = 100

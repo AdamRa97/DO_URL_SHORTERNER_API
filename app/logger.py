@@ -2,7 +2,7 @@ import logging
 import logging.config
 from contextvars import ContextVar
 
-from pythonjsonlogger import jsonlogger
+from pythonjsonlogger.json import JsonFormatter
 
 from app.config import settings
 
@@ -20,7 +20,7 @@ def _configure_logging() -> None:
     log_level = settings.LOG_LEVEL.upper()
 
     handler = logging.StreamHandler()
-    formatter = jsonlogger.JsonFormatter(
+    formatter = JsonFormatter(
         fmt="%(asctime)s %(levelname)s %(name)s %(message)s %(request_id)s",
         datefmt="%Y-%m-%dT%H:%M:%S",
     )

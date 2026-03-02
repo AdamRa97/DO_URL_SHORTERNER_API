@@ -28,7 +28,7 @@ A production-ready REST API that accepts long URLs and generates shortened alias
 
 ## Prerequisites
 
-- Docker + Docker Compose
+- Docker + Docker Compose (or [OrbStack](https://orbstack.dev) on macOS — uses the same `docker compose` commands)
 - Python 3.12+ (for local dev without Docker)
 
 ## Quick Start (Docker Compose)
@@ -36,7 +36,7 @@ A production-ready REST API that accepts long URLs and generates shortened alias
 ```bash
 # 1. Clone the repo and enter the project directory
 git clone <repo-url>
-cd URL_Shortener_API
+cd url-shortener
 
 # 2. Create your .env file
 cp .env.example .env
@@ -75,18 +75,18 @@ celery -A app.tasks.celery_app worker --loglevel=info
 
 ## Running Tests
 
+Unit tests run without any external services — all database and Redis calls are mocked. Integration tests require a live PostgreSQL and Redis instance.
+
 ```bash
-# Ensure a test PostgreSQL DB exists:
-#   createdb urlshortener_test
-
-# Run all tests with coverage
-pytest tests/ --cov=app --cov-report=term-missing -v
-
-# Unit tests only
+# Unit tests only (no DB or Redis required — fully mocked)
 pytest tests/unit/ -v
 
-# Integration tests only
+# Integration tests (requires running Postgres + Redis)
+# Ensure the test DB exists first: createdb urlshortener_test
 pytest tests/integration/ -v
+
+# All tests with coverage report
+pytest tests/ --cov=app --cov-report=term-missing
 ```
 
 ## Environment Variables
@@ -99,7 +99,8 @@ pytest tests/integration/ -v
 | `ALGORITHM` | `HS256` | JWT algorithm |
 | `ACCESS_TOKEN_EXPIRE_MINUTES` | `15` | Access token lifetime |
 | `REFRESH_TOKEN_EXPIRE_DAYS` | `7` | Refresh token lifetime |
-| `SHORT_CODE_LENGTH` | `7` | Auto-generated alias length |
+| `SHORT_CODE_LENGTH` | `7` | Auto-generated alias length (base62) |
+| `ALIAS_MAX_LENGTH` | `50` | Maximum length for custom aliases |
 | `RATE_LIMIT_LINKS_CREATE` | `20/minute` | Rate limit for POST /api/v1/links |
 | `RATE_LIMIT_REDIRECT` | `200/minute` | Rate limit for GET /{alias} |
 | `ENVIRONMENT` | `development` | `development` or `production` |
