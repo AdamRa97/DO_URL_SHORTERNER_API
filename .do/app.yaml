@@ -14,7 +14,7 @@ services:
       - path: /
     envs:
       - key: SECRET_KEY
-        value: "9babd15990ab0587a5118d12cad1d13f4008ea86ccc5bdcafb5f16e7fec721cc"
+        value: "REPLACE_WITH_SECRET_KEY"
         type: SECRET
       - key: ALGORITHM
         value: "HS256"
@@ -35,9 +35,11 @@ services:
       - key: LOG_LEVEL
         value: "INFO"
       - key: DATABASE_URL
-        value: "${db.DATABASE_URL}"
+        value: "REPLACE_WITH_POSTGRES_CONNECTION_STRING"
+        type: SECRET
       - key: REDIS_URL
-        value: "${cache.REDIS_URL}"
+        value: "REPLACE_WITH_VALKEY_CONNECTION_STRING"
+        type: SECRET
 
 workers:
   - name: celery-worker
@@ -53,18 +55,10 @@ workers:
       - key: SECRET_KEY
         value: "${api.SECRET_KEY}"
       - key: DATABASE_URL
-        value: "${db.DATABASE_URL}"
+        value: "${api.DATABASE_URL}"
       - key: REDIS_URL
-        value: "${cache.REDIS_URL}"
+        value: "${api.REDIS_URL}"
       - key: ENVIRONMENT
         value: "production"
       - key: LOG_LEVEL
         value: "INFO"
-
-databases:
-  - name: db
-    engine: PG
-    production: true
-  - name: cache
-    engine: VALKEY
-    production: true
